@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- android:allowBackup="false" above means Android's own auto-backup never runs, so this file
+     is inert - kept only because dataExtractionRules is a required attribute reference. Restore
+     is handled explicitly and deliberately by BORZINI's own in-app backup/restore feature
+     instead (see Settings -> "Резервное копирование и восстановление"), which shows the backup's
+     date and contents and asks for confirmation before replacing anything - not a silent OS-level
+     restore. -->
+<data-extraction-rules>
+    <cloud-backup disableIfNoEncryptionCapability="true">
+    </cloud-backup>
+</data-extraction-rules>

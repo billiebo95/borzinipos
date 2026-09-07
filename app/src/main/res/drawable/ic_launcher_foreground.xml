@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Simple coffee-cup silhouette, cream on coffee-brown background. -->
+    <path
+        android:fillColor="#FBF3E7"
+        android:pathData="M34,40 h34 v28 c0,11 -7.6,18 -17,18 c-9.4,0 -17,-7 -17,-18 z" />
+    <path
+        android:fillColor="#FBF3E7"
+        android:pathData="M68,46 h6 c6.6,0 12,5.4 12,12 c0,6.6 -5.4,12 -12,12 h-4 v-8 h4 c2.2,0 4,-1.8 4,-4 c0,-2.2 -1.8,-4 -4,-4 h-6 z" />
+    <path
+        android:fillColor="#FBF3E7"
+        android:pathData="M30,90 h40 v6 h-40 z" />
+    <path
+        android:fillColor="#FBF3E7"
+        android:strokeWidth="3"
+        android:strokeColor="#FBF3E7"
+        android:pathData="M42,24 c-2,4 2,5 0,9" />
+    <path
+        android:fillColor="#FBF3E7"
+        android:strokeWidth="3"
+        android:strokeColor="#FBF3E7"
+        android:pathData="M53,24 c-2,4 2,5 0,9" />
+</vector>

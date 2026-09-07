@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Platform theme only used as the Activity's launch theme (status bar / window background
+         before Compose takes over). All real theming - light/dark, accent colour, text scale -
+         is done in Compose (see ui/theme/Theme.kt), not here. -->
+    <style name="Theme.Borzini" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/coffee_cream_background</item>
+        <item name="android:windowBackground">@color/coffee_cream_background</item>
+    </style>
+</resources>
