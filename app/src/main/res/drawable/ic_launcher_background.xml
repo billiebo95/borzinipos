@@ -4,7 +4,8 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    <!-- Cream, matching the BORZINI app background (Theme.kt CoffeeCreamBackground). -->
     <path
-        android:fillColor="#6F4E37"
+        android:fillColor="#FBF3E7"
         android:pathData="M0,0h108v108h-108z" />
 </vector>
