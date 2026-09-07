@@ -55,8 +55,8 @@ fun PurchaseListScreen(navController: NavController) {
         LazyColumn(Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
             items(purchases, key = { it.id }) { purchase ->
                 Card(
-                    Modifier.fillMaxWidth().padding(vertical = 4.dp),
                     onClick = { navController.navigate("purchase_editor?purchaseId=${purchase.id}") },
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                 ) {
                     Row(Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                         Column {

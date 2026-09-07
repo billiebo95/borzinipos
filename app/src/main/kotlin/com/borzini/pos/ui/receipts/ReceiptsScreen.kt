@@ -53,8 +53,8 @@ fun ReceiptsScreen(navController: NavController) {
             LazyColumn {
                 items(state.sales, key = { it.id }) { sale ->
                     Card(
-                        Modifier.fillMaxWidth().padding(vertical = 4.dp),
                         onClick = { navController.navigate("receipt_detail/${sale.id}") },
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                     ) {
                         Row(Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                             Column {

@@ -71,8 +71,8 @@ fun WarehouseScreen(navController: NavController) {
             LazyColumn(Modifier.padding(top = 8.dp)) {
                 items(state.items, key = { it.id }) { item ->
                     Card(
-                        Modifier.fillMaxWidth().padding(vertical = 4.dp),
                         onClick = { navController.navigate("inventory_item_editor?itemId=${item.id}") },
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                     ) {
                         Row(Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                             Column {
