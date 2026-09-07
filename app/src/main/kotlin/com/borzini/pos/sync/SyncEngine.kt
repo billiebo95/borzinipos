@@ -71,15 +71,15 @@ class SyncEngine(
             _status.value = SyncStatus.NeedsSignIn
             return SyncRunResult(0, 0, SyncStatus.NeedsSignIn)
         }
-        val credential = authManager.currentCredential()
-        if (credential == null) {
+        val accessToken = authManager.getAccessToken()
+        if (accessToken == null) {
             _status.value = SyncStatus.NeedsSignIn
             return SyncRunResult(0, 0, SyncStatus.NeedsSignIn)
         }
 
         _status.value = SyncStatus.Syncing
         return try {
-            val client = DriveSheetsClient(credential)
+            val client = DriveSheetsClient(accessToken)
             var folderId = settings.driveFolderId
             var spreadsheetId = settings.spreadsheetId
             if (folderId == null) {

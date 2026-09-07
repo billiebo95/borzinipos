@@ -111,18 +111,12 @@ dependencies {
     implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.kotlinx.serialization.json)
 
+    // Google sign-in only. Drive/Sheets access deliberately goes through plain HTTPS REST calls
+    // (see sync/DriveSheetsClient.kt) with an OAuth token from GoogleAuthUtil, instead of the
+    // generated com.google.apis:google-api-services-* / com.google.api-client client libraries -
+    // those are published only to Google's Maven repository with revision-dated versions that
+    // could not be verified from this environment (see README.md for why).
     implementation(libs.play.services.auth)
-    implementation(libs.google.api.client.android) {
-        exclude(group = "org.apache.httpcomponents")
-    }
-    implementation(libs.google.api.services.sheets) {
-        exclude(group = "org.apache.httpcomponents")
-    }
-    implementation(libs.google.api.services.drive) {
-        exclude(group = "org.apache.httpcomponents")
-    }
-    implementation(libs.google.http.client.gson)
-    implementation(libs.google.http.client.android)
 
     implementation(libs.coil.compose)
 
