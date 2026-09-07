@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
 package com.borzini.pos.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +34,7 @@ import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.ZoneId
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun GoalsScreen(navController: NavController) {

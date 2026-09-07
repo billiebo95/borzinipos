@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
 package com.borzini.pos.ui.catalog
 
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +18,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenu
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
@@ -99,7 +101,7 @@ fun ProductEditorScreen(navController: NavController, productId: String?) {
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                         modifier = Modifier.fillMaxWidth().menuAnchor(),
                     )
-                    ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                         state.categories.forEach { category ->
                             DropdownMenuItem(text = { Text(category.name) }, onClick = { viewModel.setCategoryId(category.id); expanded = false })
                         }
@@ -122,7 +124,7 @@ fun ProductEditorScreen(navController: NavController, productId: String?) {
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                             modifier = Modifier.fillMaxWidth().menuAnchor(),
                         )
-                        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                             state.inventoryItems.forEach { item ->
                                 DropdownMenuItem(text = { Text(item.name) }, onClick = { viewModel.setSimpleInventoryItemId(item.id); expanded = false })
                             }
@@ -212,7 +214,7 @@ private fun RecipeLineRow(
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                 modifier = Modifier.fillMaxWidth().menuAnchor(),
             )
-            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 inventoryItems.forEach { item ->
                     DropdownMenuItem(text = { Text("${item.name} (${unitLabel(item.baseUnit)})") }, onClick = { onItemChange(line.key, item.id); expanded = false })
                 }

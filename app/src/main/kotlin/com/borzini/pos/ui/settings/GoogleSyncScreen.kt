@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
 package com.borzini.pos.ui.settings
 
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -34,6 +36,7 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import androidx.compose.ui.unit.dp
 
 private fun statusText(status: SyncStatus): String = when (status) {
     is SyncStatus.AllSynced -> "Всё синхронизировано"

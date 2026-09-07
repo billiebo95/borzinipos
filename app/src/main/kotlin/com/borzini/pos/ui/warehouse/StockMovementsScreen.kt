@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
 package com.borzini.pos.ui.warehouse
 
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +30,7 @@ import com.borzini.pos.LocalAppContainer
 import com.borzini.pos.core.StockMovementReason
 import com.borzini.pos.ui.common.formatDateTime
 import java.time.ZoneId
+import androidx.compose.ui.unit.dp
 
 private fun reasonLabel(reason: String): String = when (reason) {
     StockMovementReason.PURCHASE_RECEIPT.name -> "Поступление (закупка)"

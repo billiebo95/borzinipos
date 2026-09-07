@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
 package com.borzini.pos.ui.settings
 
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 import com.borzini.pos.LocalAppContainer
 import kotlinx.coroutines.launch
 import java.time.Instant
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun ArchiveScreen(navController: NavController) {

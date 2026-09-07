@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
 package com.borzini.pos.ui.receipts
 
 import androidx.compose.foundation.layout.Arrangement
@@ -27,6 +29,7 @@ import com.borzini.pos.data.prefs.AppSettings
 import com.borzini.pos.ui.common.SimpleViewModelFactory
 import com.borzini.pos.ui.common.formatDateTime
 import java.time.ZoneId
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun ReceiptsScreen(navController: NavController) {

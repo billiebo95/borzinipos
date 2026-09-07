@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
 package com.borzini.pos.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
@@ -10,7 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenu
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
@@ -33,6 +35,7 @@ import androidx.compose.runtime.collectAsState
 import com.borzini.pos.LocalAppContainer
 import com.borzini.pos.data.prefs.AppSettings
 import kotlinx.coroutines.launch
+import androidx.compose.ui.unit.dp
 
 private val commonTimezones = listOf(
     "Europe/Kaliningrad", "Europe/Moscow", "Europe/Samara", "Asia/Yekaterinburg", "Asia/Omsk",
@@ -75,7 +78,7 @@ fun CoffeeShopSettingsScreen(navController: NavController) {
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                     modifier = Modifier.fillMaxWidth().menuAnchor(),
                 )
-                ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                     commonTimezones.forEach { tz ->
                         DropdownMenuItem(text = { Text(tz) }, onClick = { scope.launch { container.settingsDataStore.setTimezoneId(tz) }; expanded = false })
                     }

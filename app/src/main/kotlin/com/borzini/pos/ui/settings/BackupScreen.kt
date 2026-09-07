@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
 package com.borzini.pos.ui.settings
 
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -41,6 +43,7 @@ import java.io.File
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun BackupScreen(navController: NavController) {

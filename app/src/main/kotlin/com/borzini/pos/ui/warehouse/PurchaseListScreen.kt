@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
 package com.borzini.pos.ui.warehouse
 
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +32,7 @@ import com.borzini.pos.data.prefs.AppSettings
 import com.borzini.pos.ui.Routes
 import com.borzini.pos.ui.common.formatDate
 import java.time.ZoneId
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun PurchaseListScreen(navController: NavController) {

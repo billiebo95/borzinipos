@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
 package com.borzini.pos.ui.receipts
 
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +36,7 @@ import androidx.compose.runtime.collectAsState
 import com.borzini.pos.LocalAppContainer
 import com.borzini.pos.core.Money
 import com.borzini.pos.ui.common.SimpleViewModelFactory
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun ReceiptDetailScreen(navController: NavController, saleId: String) {
