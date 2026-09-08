@@ -1,7 +1,7 @@
 import { registerRoute, navigate } from '../router.js';
-import { completeSale } from '../db.js';
+import { completeSale, get, getAll } from '../db.js';
 import { Money } from '../money.js';
-import { fromHtml } from '../dom.js';
+import { escapeHtml, fromHtml } from '../dom.js';
 import { showToast } from '../toast.js';
 import { getCart, cartTotalKopecks, clearCart, checkoutKey, currentSettings } from '../state.js';
 import { evaluateCashPayment } from '../core.js';
@@ -13,26 +13,32 @@ registerRoute('/checkout', async (params, container) => {
   let submitting = false;
 
   const root = fromHtml(`
-    <div class="screen" style="max-width:520px;">
-      <div class="row gap-3 mb-4">
-        <button class="icon-btn" id="back-btn">
-          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+    <div class="overlay-screen">
+      <div class="overlay-header">
+        <button class="back-btn" id="back-btn">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2.2" fill="none"/></svg>
         </button>
-        <h2 class="screen-title" style="margin:0;">Оплата</h2>
+        <div class="overlay-title">Оплата</div>
       </div>
-      <div class="card">
-        <div class="muted small">Сумма заказа</div>
-        <div style="font-size:32px;font-weight:800;color:var(--color-primary);">${Money.format(total)}</div>
+      <div class="overlay-body">
+        <div class="amount-card">
+          <div class="muted small">Сумма заказа</div>
+          <div style="font-family:var(--font);font-weight:800;font-size:30px;color:var(--color-accent-text);">${Money.format(total)}</div>
+        </div>
+
+        <div class="method-row mt-4">
+          <div class="chip active" data-method="CASH">Наличные</div>
+          <div class="chip" data-method="CASHLESS">Безналичные</div>
+        </div>
+
+        <div id="cash-section"></div>
+        <div id="cashless-section" class="hidden">
+          <p class="muted small">Подтвердите, что оплата получена через терминал или другим способом.</p>
+        </div>
       </div>
-      <div class="row gap-2 mt-4">
-        <div class="chip active" data-method="CASH">Наличные</div>
-        <div class="chip" data-method="CASHLESS">Безналичные</div>
+      <div class="overlay-footer">
+        <button class="btn btn-primary btn-block" id="submit-btn" disabled style="opacity:.45;">Завершить оплату</button>
       </div>
-      <div id="cash-section" class="mt-4"></div>
-      <div id="cashless-section" class="mt-4 hidden">
-        <p class="muted">Подтвердите, что оплата получена (через терминал или другим способом).</p>
-      </div>
-      <button class="btn btn-primary btn-block mt-4" id="submit-btn">Завершить оплату</button>
     </div>
   `);
   container.replaceChildren(root);
@@ -41,7 +47,7 @@ registerRoute('/checkout', async (params, container) => {
   const cashlessSection = root.querySelector('#cashless-section');
   const submitBtn = root.querySelector('#submit-btn');
 
-  root.querySelector('#back-btn').addEventListener('click', () => history.back());
+  root.querySelector('#back-btn').addEventListener('click', () => navigate('/cart'));
 
   function renderCash() {
     cashSection.innerHTML = `
@@ -49,11 +55,11 @@ registerRoute('/checkout', async (params, container) => {
         <label>Получено от клиента, ₽</label>
         <input class="input" id="received-input" inputmode="decimal" value="${receivedText}" placeholder="0" />
       </div>
-      <div class="row gap-2 wrap mt-3">
-        ${[500, 1000, 2000, 5000].map((a) => `<button class="btn btn-outline btn-sm" data-amount="${a}">${a} ₽</button>`).join('')}
-        <button class="btn btn-outline btn-sm" id="exact-btn">Без сдачи</button>
+      <div class="quick-row mt-3">
+        ${[500, 1000, 2000, 5000].map((a) => `<button class="chip" data-amount="${a}">${a} ₽</button>`).join('')}
+        <button class="chip" id="exact-btn">Без сдачи</button>
       </div>
-      <div id="change-display" class="mt-3"></div>
+      <div id="change-display" style="font-family:var(--font);font-weight:800;font-size:17px;"></div>
     `;
     const input = cashSection.querySelector('#received-input');
     input.addEventListener('input', () => { receivedText = input.value; updateChangeAndButton(); });
@@ -81,18 +87,26 @@ registerRoute('/checkout', async (params, container) => {
     const changeDisplay = cashSection.querySelector('#change-display');
     const received = receivedKopecks();
     if (received == null) {
-      changeDisplay.innerHTML = '';
-      submitBtn.disabled = true;
+      changeDisplay.textContent = '';
+      changeDisplay.style.color = 'var(--color-text)';
+      setSubmitEnabled(false);
       return;
     }
     const result = evaluateCashPayment(total, received);
     if (result.ok) {
-      changeDisplay.innerHTML = `<div style="font-size:20px;font-weight:800;">Сдача: ${Money.format(result.change)}</div>`;
-      submitBtn.disabled = submitting;
+      changeDisplay.textContent = 'Сдача: ' + Money.format(result.change);
+      changeDisplay.style.color = 'var(--color-text)';
+      setSubmitEnabled(!submitting);
     } else {
-      changeDisplay.innerHTML = `<div class="badge badge-error">Не хватает ${Money.format(result.shortfall)}</div>`;
-      submitBtn.disabled = true;
+      changeDisplay.textContent = 'Не хватает ' + Money.format(result.shortfall);
+      changeDisplay.style.color = 'var(--color-accent-text)';
+      setSubmitEnabled(false);
     }
+  }
+
+  function setSubmitEnabled(enabled) {
+    submitBtn.disabled = !enabled;
+    submitBtn.style.opacity = enabled ? '1' : '.45';
   }
 
   root.querySelectorAll('[data-method]').forEach((chip) => chip.addEventListener('click', () => {
@@ -100,8 +114,8 @@ registerRoute('/checkout', async (params, container) => {
     root.querySelectorAll('[data-method]').forEach((c) => c.classList.toggle('active', c.dataset.method === paymentMethod));
     cashSection.classList.toggle('hidden', paymentMethod !== 'CASH');
     cashlessSection.classList.toggle('hidden', paymentMethod !== 'CASHLESS');
-    submitBtn.disabled = paymentMethod === 'CASH' ? receivedKopecks() == null : false;
     if (paymentMethod === 'CASH') updateChangeAndButton();
+    else setSubmitEnabled(!submitting);
   }));
 
   renderCash();
@@ -109,7 +123,7 @@ registerRoute('/checkout', async (params, container) => {
   submitBtn.addEventListener('click', async () => {
     if (submitting) return;
     submitting = true;
-    submitBtn.disabled = true;
+    setSubmitEnabled(false);
     submitBtn.textContent = 'Обрабатываем…';
 
     const settings = currentSettings();
@@ -130,12 +144,12 @@ registerRoute('/checkout', async (params, container) => {
 
     if (result.status === 'ok') {
       clearCart();
-      navigate(`/receipts/${result.sale.id}`);
+      navigate(`/checkout/success/${result.sale.id}`);
       return;
     }
     submitting = false;
-    submitBtn.disabled = false;
     submitBtn.textContent = 'Завершить оплату';
+    if (paymentMethod === 'CASH') updateChangeAndButton(); else setSubmitEnabled(true);
     if (result.status === 'insufficient_stock') {
       showToast('Недостаточно на складе: ' + result.shortages.map((s) => s.name).join(', '));
     } else if (result.status === 'insufficient_cash') {
@@ -144,4 +158,36 @@ registerRoute('/checkout', async (params, container) => {
       showToast('Не удалось завершить продажу');
     }
   });
+});
+
+// Post-payment confirmation — a distinct overlay from the receipt-history detail view
+// (no return flow here, just "paid, here's what for" and a way back into a new order).
+registerRoute('/checkout/success/:id', async (params, container) => {
+  const sale = await get('sales', params.id);
+  if (!sale) { navigate('/pos'); return; }
+  const items = await getAll('saleItems', 'saleId', params.id);
+
+  const root = fromHtml(`
+    <div class="overlay-screen">
+      <div class="overlay-body" style="display:flex;flex-direction:column;align-items:center;padding:48px 20px;gap:10px;">
+        <div class="check-circle">
+          <svg viewBox="0 0 24 24" width="30" height="30"><path d="M5 13l4 4 10-10" stroke="#fff" stroke-width="2.6" fill="none"/></svg>
+        </div>
+        <div style="font-family:var(--font);font-weight:800;font-size:20px;">Оплата принята</div>
+        <div class="muted small" style="margin-bottom:18px;">${sale.paymentMethod === 'CASH' ? 'Наличными' : 'Безналичный расчёт'}</div>
+
+        <div class="amount-card" style="width:100%;display:flex;flex-direction:column;gap:8px;margin-bottom:24px;">
+          ${items.map((it) => `
+            <div class="receipt-line"><span>${escapeHtml(it.productNameSnapshot)} × ${it.quantity}</span><span>${Money.format(it.lineTotalKopecks)}</span></div>`).join('')}
+          <div class="receipt-divider"></div>
+          <div class="receipt-total-row"><span>Итого</span><span>${Money.format(sale.totalKopecks)}</span></div>
+          ${sale.paymentMethod === 'CASH' ? `
+            <div class="receipt-change-row"><span>Сдача</span><span>${Money.format(sale.changeGivenKopecks || 0)}</span></div>` : ''}
+        </div>
+
+        <button class="btn btn-primary btn-block" id="new-order">Новый заказ</button>
+      </div>
+    </div>`);
+  container.replaceChildren(root);
+  root.querySelector('#new-order').addEventListener('click', () => navigate('/pos'));
 });

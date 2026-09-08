@@ -29,36 +29,36 @@ registerRoute('/stats', async (params, container) => {
   let customEnd = todayDateString(tz);
 
   const root = fromHtml(`
-    <div class="screen">
-      <h2 class="screen-title">Статистика</h2>
-      <div class="chip-row mb-3" id="period-chips">
+    <div class="screen stack gap-3">
+      <div class="screen-title" style="margin:0;">Статистика</div>
+      <div class="chip-row" id="period-chips">
         ${Object.entries(PERIOD_LABELS).map(([k, label]) => `<div class="chip ${k === preset ? 'active' : ''}" data-preset="${k}">${label}</div>`).join('')}
       </div>
-      <div id="custom-range" class="row gap-2 mb-3 hidden">
+      <div id="custom-range" class="row gap-2 hidden">
         <input type="date" class="input" id="custom-start" value="${customStart}" />
         <input type="date" class="input" id="custom-end" value="${customEnd}" />
         <button class="btn btn-outline btn-sm" id="apply-custom">Применить</button>
       </div>
 
-      <div id="kpi-grid" class="kpi-grid mb-4"></div>
+      <div id="kpi-grid" class="kpi-grid"></div>
 
-      <div class="card mb-4">
-        <h3 class="mb-3">Неделя (Пн–Вс)</h3>
+      <div class="sub-card">
+        <div class="sub-card-heading">Неделя (Пн–Вс)</div>
         <div id="week-chart"></div>
       </div>
 
-      <div class="card mb-4">
-        <h3 class="mb-3">Топ товаров</h3>
+      <div class="sub-card">
+        <div class="sub-card-heading">Топ товаров</div>
         <div id="top-products" class="stack"></div>
       </div>
 
-      <div class="card mb-4">
-        <h3 class="mb-3">По категориям</h3>
+      <div class="sub-card">
+        <div class="sub-card-heading">По категориям</div>
         <div id="by-category" class="stack"></div>
       </div>
 
-      <div class="card">
-        <h3 class="mb-3">Цели</h3>
+      <div class="sub-card">
+        <div class="sub-card-heading">Цели</div>
         <div id="goals"></div>
       </div>
     </div>`);
@@ -111,8 +111,8 @@ registerRoute('/stats', async (params, container) => {
     const topProducts = [...revenueByProduct.values()].sort((a, b) => b.revenue - a.revenue).slice(0, 8);
     const topProductsEl = root.querySelector('#top-products');
     topProductsEl.innerHTML = topProducts.length
-      ? topProducts.map((p) => `<div class="list-row" style="cursor:default;"><span>${escapeHtml(p.name)}</span><strong>${Money.format(p.revenue)}</strong></div>`).join('')
-      : '<div class="empty-state small">Нет продаж за период</div>';
+      ? topProducts.map((p) => `<div class="receipt-line"><span>${escapeHtml(p.name)}</span><strong>${Money.format(p.revenue)}</strong></div>`).join('')
+      : '<div class="empty-state small" style="padding:0;">Нет продаж за период</div>';
 
     const byCategory = [...revenueByCategory.entries()].sort((a, b) => b[1] - a[1]);
     const maxCategoryRevenue = byCategory.length ? byCategory[0][1] : 0;
@@ -123,7 +123,7 @@ registerRoute('/stats', async (params, container) => {
             <div class="row between"><span>${escapeHtml(name)}</span><strong>${Money.format(revenue)}</strong></div>
             <div class="progress mt-1"><div style="width:${maxCategoryRevenue ? Math.round((revenue / maxCategoryRevenue) * 100) : 0}%;"></div></div>
           </div>`).join('')
-      : '<div class="empty-state small">Нет данных за период</div>';
+      : '<div class="empty-state small" style="padding:0;">Нет данных за период</div>';
   }
 
   async function renderWeekChart() {
@@ -140,10 +140,10 @@ registerRoute('/stats', async (params, container) => {
     const max = Math.max(1, ...revenues);
     const chartEl = root.querySelector('#week-chart');
     chartEl.innerHTML = `
-      <div class="row" style="align-items:flex-end;gap:8px;height:140px;">
+      <div class="week-chart-row">
         ${revenues.map((r, i) => `
-          <div class="stack" style="flex:1;align-items:center;gap:6px;">
-            <div style="width:100%;max-width:36px;border-radius:6px 6px 0 0;background:${days[i] === today ? 'var(--color-primary)' : 'var(--color-accent-tint)'};height:${Math.max(4, Math.round((r / max) * 110))}px;"></div>
+          <div class="week-chart-col">
+            <div class="week-chart-bar ${days[i] === today ? 'today' : ''}" style="height:${Math.max(4, Math.round((r / max) * 90))}px;"></div>
             <span class="muted small">${dayNames[i]}</span>
           </div>`).join('')}
       </div>
@@ -167,12 +167,12 @@ registerRoute('/stats', async (params, container) => {
       const target = goal?.targetKopecks || 0;
       const pct = target > 0 ? Math.min(100, Math.round((actual / target) * 100)) : 0;
       return `
-        <div class="mt-3">
+        <div class="mt-3" style="padding-bottom:10px;border-bottom:1px solid var(--color-divider);">
           <div class="row between"><span>${label}</span><span class="muted small">${Money.format(actual)}${target ? ` из ${Money.format(target)}` : ''}</span></div>
           ${target ? `<div class="progress mt-1"><div style="width:${pct}%;"></div></div>` : ''}
           <div class="row gap-2 mt-2">
             <input class="input" data-goal-input="${type}|${periodKey}" placeholder="Цель, ₽" value="${target ? (target / 100).toFixed(2) : ''}" style="max-width:160px;" />
-            <button class="btn btn-outline btn-sm" data-goal-save="${type}|${periodKey}">Сохранить</button>
+            <button class="btn btn-ghost" data-goal-save="${type}|${periodKey}" style="border:1px solid var(--color-border);">Сохранить</button>
           </div>
         </div>`;
     }
