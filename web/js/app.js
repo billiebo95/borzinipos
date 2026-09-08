@@ -10,10 +10,11 @@ import './screens/catalog.js';
 import './screens/stats.js';
 import './screens/settings.js';
 
+// The Modernist design uses one fixed brand accent (#EC3013, set in css/styles.css) rather than a
+// per-shop customizable color, so applyTheme only ever toggles light/dark and the text-scale knob.
 function applyTheme(settings) {
   const root = document.documentElement;
   root.dataset.theme = settings.themeMode === 'DARK' ? 'dark' : settings.themeMode === 'LIGHT' ? 'light' : '';
-  root.style.setProperty('--color-primary', '#' + settings.accentColorHex.replace(/^FF/i, ''));
   root.style.fontSize = `${Math.round(16 * (settings.textScale || 1))}px`;
 }
 

@@ -1,11 +1,12 @@
 // BORZINI PWA service worker — cache-first app shell, offline-first by design.
 // Bump CACHE_VERSION whenever any cached file changes so clients pick up the new version.
-const CACHE_VERSION = 'borzini-v3';
+const CACHE_VERSION = 'borzini-v4';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './css/styles.css',
+  './fonts/archivo-variable-latin.woff2',
   './js/app.js',
   './js/db.js',
   './js/money.js',

@@ -3,7 +3,6 @@ import { getAll, getAllInRange } from '../db.js';
 import { Money } from '../money.js';
 import { escapeHtml, fromHtml } from '../dom.js';
 import { getCart, onCartChange, addToCart, setLineQuantity, removeCartLine, clearCart, cartTotalKopecks, cartItemCount } from '../state.js';
-import { currentSettings } from '../state.js';
 
 const POPULAR = '__popular__';
 
@@ -66,29 +65,16 @@ function cartLineHtml(line) {
         <button data-action="inc" data-line-id="${line.lineId}">+</button>
       </div>
       <button class="icon-btn" data-action="remove" data-line-id="${line.lineId}" aria-label="Удалить">
-        <svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 7h12l-1 13H7zM9 4h6l1 2H8zM9 10v7M12 10v7M15 10v7" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+        <svg viewBox="0 0 24 24" width="17" height="17"><path d="M6 7h12l-1 13H7zM9 4h6l1 2H8zM9 10v7M12 10v7M15 10v7" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
       </button>
     </div>`;
 }
 
-function renderCartInto(container) {
+function renderCartLinesInto(container) {
   const lines = getCart();
-  const total = cartTotalKopecks();
-  container.innerHTML = `
-    <div class="cart-panel">
-      <div class="row between mb-2">
-        <h3>Текущий заказ</h3>
-        ${lines.length ? '<button class="btn-ghost btn btn-sm" data-action="clear-cart">Очистить</button>' : ''}
-      </div>
-      ${lines.length === 0
-        ? '<div class="empty-state small">Добавьте товары из меню</div>'
-        : `<div class="cart-lines">${lines.map(cartLineHtml).join('')}</div>
-           <div class="row between mt-3" style="padding-top:8px;">
-             <strong>Итого</strong><strong style="font-size:18px;">${Money.format(total)}</strong>
-           </div>
-           <button class="btn btn-primary btn-block mt-3" data-action="checkout">Перейти к оплате</button>`}
-    </div>`;
-
+  container.innerHTML = lines.length
+    ? `<div class="stack gap-2">${lines.map(cartLineHtml).join('')}</div>`
+    : '<div class="empty-state">Добавьте товары из меню</div>';
   container.querySelectorAll('[data-action="inc"]').forEach((b) => b.addEventListener('click', () => {
     const l = lines.find((x) => x.lineId === b.dataset.lineId);
     setLineQuantity(b.dataset.lineId, l.quantity + 1);
@@ -98,37 +84,35 @@ function renderCartInto(container) {
     setLineQuantity(b.dataset.lineId, l.quantity - 1);
   }));
   container.querySelectorAll('[data-action="remove"]').forEach((b) => b.addEventListener('click', () => removeCartLine(b.dataset.lineId)));
+}
+
+// Desktop side-panel cart (outside the mockup's mobile-only scope, kept from the existing app).
+function renderCartSideInto(container) {
+  const lines = getCart();
+  const total = cartTotalKopecks();
+  container.innerHTML = `
+    <div class="row between mb-2">
+      <h3 style="font-family:var(--font);font-weight:800;">Текущий заказ</h3>
+      ${lines.length ? '<button class="btn btn-ghost" data-action="clear-cart">Очистить</button>' : ''}
+    </div>
+    <div class="cart-lines-side"></div>
+    ${lines.length ? `
+      <div class="row between mt-3" style="padding-top:8px;border-top:2px solid var(--color-divider);">
+        <strong>Итого</strong><strong style="font-size:18px;">${Money.format(total)}</strong>
+      </div>
+      <button class="btn btn-primary btn-block mt-3" data-action="checkout">Перейти к оплате</button>` : ''}`;
+  renderCartLinesInto(container.querySelector('.cart-lines-side'));
   const clearBtn = container.querySelector('[data-action="clear-cart"]');
-  if (clearBtn) clearBtn.addEventListener('click', () => {
-    if (confirm('Очистить текущий заказ?')) clearCart();
-  });
+  if (clearBtn) clearBtn.addEventListener('click', () => { if (confirm('Очистить текущий заказ?')) clearCart(); });
   const checkoutBtn = container.querySelector('[data-action="checkout"]');
   if (checkoutBtn) checkoutBtn.addEventListener('click', () => navigate('/checkout'));
 }
 
-function openCartSheet() {
+function openVariantPicker(product, variants) {
   const backdrop = fromHtml(`
     <div class="sheet-backdrop">
       <div class="sheet">
-        <div class="sheet-handle"></div>
-        <div class="cart-sheet-content"></div>
-      </div>
-    </div>`);
-  document.body.appendChild(backdrop);
-  renderCartInto(backdrop.querySelector('.cart-sheet-content'));
-  backdrop.addEventListener('click', (e) => { if (e.target === backdrop) backdrop.remove(); });
-  const unsub = onCartChange(() => {
-    if (!document.body.contains(backdrop)) { unsub(); return; }
-    renderCartInto(backdrop.querySelector('.cart-sheet-content'));
-    if (getCart().length === 0) backdrop.remove();
-  });
-}
-
-function openVariantPicker(product, variants) {
-  const backdrop = fromHtml(`
-    <div class="sheet-backdrop center">
-      <div class="sheet">
-        <h3 class="mb-2">${escapeHtml(product.name)}</h3>
+        <h3 class="mb-3" style="font-family:var(--font);font-weight:800;font-size:16px;">${escapeHtml(product.name)}</h3>
         <div class="stack gap-2" id="variant-list"></div>
       </div>
     </div>`);
@@ -155,12 +139,10 @@ registerRoute('/pos', async (params, container) => {
     <div class="screen">
       <div class="pos-layout">
         <div>
-          <div class="search-input-wrap mb-3">
-            <svg viewBox="0 0 24 24" width="18" height="18"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none"/><path d="M21 21l-4-4" stroke="currentColor" stroke-width="2"/></svg>
-            <input class="input" id="pos-search" placeholder="Поиск по названию" />
-          </div>
+          <input class="input mb-3" id="pos-search" placeholder="Поиск по названию" />
           <div class="chip-row mb-3" id="pos-chips"></div>
           <div class="product-grid" id="pos-grid"></div>
+          <div class="empty-state hidden" id="pos-empty">Нет товаров в этой категории</div>
         </div>
         <div class="pos-cart-side" id="pos-cart-side"></div>
       </div>
@@ -170,6 +152,7 @@ registerRoute('/pos', async (params, container) => {
 
   const chipsEl = root.querySelector('#pos-chips');
   const gridEl = root.querySelector('#pos-grid');
+  const emptyEl = root.querySelector('#pos-empty');
   const searchEl = root.querySelector('#pos-search');
   const cartSideEl = root.querySelector('#pos-cart-side');
 
@@ -194,10 +177,9 @@ registerRoute('/pos', async (params, container) => {
     } else {
       filtered = filtered.filter((e) => e.product.categoryId === selectedCategory);
     }
-    if (!filtered.length) {
-      gridEl.innerHTML = '<div class="empty-state">Нет товаров в этой категории</div>';
-      return;
-    }
+    gridEl.classList.toggle('hidden', filtered.length === 0);
+    emptyEl.classList.toggle('hidden', filtered.length > 0);
+    if (!filtered.length) return;
     gridEl.innerHTML = filtered.map((e) => {
       const qty = cart.filter((l) => l.productId === e.product.id).reduce((s, l) => s + l.quantity, 0);
       return productCardHtml(e, qty);
@@ -218,31 +200,75 @@ registerRoute('/pos', async (params, container) => {
 
   renderChips();
   renderGrid();
-  renderCartInto(cartSideEl);
+  renderCartSideInto(cartSideEl);
 
-  // Mobile bottom bar
+  // Mobile bottom bar — tapping it opens the full-screen cart overlay (/cart).
   let bottombar = document.querySelector('.cart-bottombar');
   function renderBottombar() {
     const count = cartItemCount();
     if (!count) { if (bottombar) bottombar.remove(); bottombar = null; return; }
     if (!bottombar) {
       bottombar = fromHtml('<div class="cart-bottombar"></div>');
-      bottombar.addEventListener('click', openCartSheet);
+      bottombar.addEventListener('click', () => navigate('/cart'));
       document.body.appendChild(bottombar);
     }
     bottombar.innerHTML = `
       <div><div class="count">${count} поз.</div><div class="total">${Money.format(cartTotalKopecks())}</div></div>
       <div class="cta">К оплате
-        <svg viewBox="0 0 24 24" width="18" height="18"><path d="M9 6l6 6-6 6" stroke="white" stroke-width="2" fill="none"/></svg>
+        <svg viewBox="0 0 24 24" width="18" height="18"><path d="M9 6l6 6-6 6" stroke="#fff" stroke-width="2.4" fill="none"/></svg>
       </div>`;
   }
   renderBottombar();
 
   const unsub = onCartChange(() => {
     renderGrid();
-    renderCartInto(cartSideEl);
+    renderCartSideInto(cartSideEl);
     renderBottombar();
   });
 
   return () => { unsub(); if (bottombar) bottombar.remove(); };
+});
+
+// Full-screen cart overlay — mirrors the design's isCartView (no topbar/bottom nav while it's open).
+registerRoute('/cart', async (params, container) => {
+  const root = fromHtml(`
+    <div class="overlay-screen">
+      <div class="overlay-header">
+        <button class="back-btn" id="close-cart">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2.2" fill="none"/></svg>
+        </button>
+        <div class="overlay-title">Текущий заказ</div>
+        <button class="btn btn-ghost hidden" id="clear-cart">Очистить</button>
+      </div>
+      <div class="overlay-body" id="cart-body"></div>
+      <div class="overlay-footer">
+        <div class="row between mb-3" style="font-family:var(--font);font-weight:700;font-size:14px;">
+          <span>Итого</span><span style="font-size:19px;font-weight:800;" id="cart-total"></span>
+        </div>
+        <button class="btn btn-primary btn-block" id="go-checkout">Перейти к оплате</button>
+      </div>
+    </div>`);
+  container.replaceChildren(root);
+
+  const bodyEl = root.querySelector('#cart-body');
+  const clearBtn = root.querySelector('#clear-cart');
+  const totalEl = root.querySelector('#cart-total');
+  const goCheckoutBtn = root.querySelector('#go-checkout');
+
+  function render() {
+    const lines = getCart();
+    renderCartLinesInto(bodyEl);
+    clearBtn.classList.toggle('hidden', lines.length === 0);
+    totalEl.textContent = Money.format(cartTotalKopecks());
+    goCheckoutBtn.disabled = lines.length === 0;
+    if (lines.length === 0 && document.body.contains(root)) navigate('/pos');
+  }
+
+  root.querySelector('#close-cart').addEventListener('click', () => navigate('/pos'));
+  clearBtn.addEventListener('click', () => { if (confirm('Очистить текущий заказ?')) clearCart(); });
+  goCheckoutBtn.addEventListener('click', () => { if (getCart().length) navigate('/checkout'); });
+
+  render();
+  const unsub = onCartChange(render);
+  return () => unsub();
 });

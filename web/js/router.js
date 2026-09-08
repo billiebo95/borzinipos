@@ -35,9 +35,14 @@ function updateBottomNavHighlight(path) {
   document.querySelectorAll('.bottomnav-item').forEach((a) => {
     a.classList.toggle('active', a.dataset.route === top);
   });
-  const bottomnav = document.getElementById('bottomnav');
-  const topLevelRoutes = new Set(['pos', 'warehouse', 'stats', 'settings']);
-  bottomnav.style.display = topLevelRoutes.has(top) ? '' : '';
+}
+
+// Cart, checkout and the post-payment receipt take over the whole screen — no topbar, no bottom
+// nav — same as the design's isCartView/isCheckoutView/isReceiptView overlays.
+const CHROMELESS_PREFIXES = ['/cart', '/checkout'];
+function updateChrome(path) {
+  const hideChrome = CHROMELESS_PREFIXES.some((p) => path === p || path.startsWith(p + '/'));
+  document.body.classList.toggle('chrome-hidden', hideChrome);
 }
 
 async function render() {
@@ -46,6 +51,7 @@ async function render() {
   if (typeof currentCleanup === 'function') { try { currentCleanup(); } catch (e) { /* ignore */ } }
   currentCleanup = null;
   updateBottomNavHighlight(path);
+  updateChrome(path);
   container.scrollTop = 0;
   if (!match) {
     container.innerHTML = '<div class="empty-state">Страница не найдена</div>';

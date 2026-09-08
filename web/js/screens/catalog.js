@@ -215,7 +215,7 @@ async function renderProductEditor(container, id) {
         <button class="btn btn-primary" id="save-btn">Сохранить</button>
         ${id ? '<button class="btn btn-danger" id="archive-btn">В архив</button>' : ''}
       </div>
-      <div id="err" class="mt-3" style="color:var(--color-error);"></div>
+      <div id="err" class="mt-3" style="color:var(--color-accent-text);"></div>
     </div>`);
   container.replaceChildren(root);
   root.querySelector('#back-btn').addEventListener('click', () => navigate('/catalog'));

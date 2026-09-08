@@ -79,7 +79,7 @@ async function renderPurchaseEditor(container, id) {
              <button class="btn btn-outline" id="save-draft">Сохранить черновик</button>
              <button class="btn btn-primary" id="save-post">Провести закупку</button>
            </div>`}
-      <div id="err" class="mt-3" style="color:var(--color-error);"></div>
+      <div id="err" class="mt-3" style="color:var(--color-accent-text);"></div>
     </div>`);
   container.replaceChildren(root);
   root.querySelector('#back-btn').addEventListener('click', () => navigate('/warehouse/purchases'));
