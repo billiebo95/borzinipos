@@ -36,10 +36,10 @@ function lineRowHtml(line, items) {
         <select class="input f-item">${'<option value="">Выберите позицию</option>' + options}</select>
         <button class="icon-btn f-remove"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2"/></svg></button>
       </div>
-      <div class="row gap-2 mt-2">
-        <input class="input f-count" placeholder="Кол-во упаковок" value="${line.packageCount ?? '1'}" />
-        <input class="input f-units" placeholder="Ед. в упаковке" value="${line.unitsPerPackage ?? ''}" />
-        <input class="input f-cost" placeholder="Цена упаковки, ₽" value="${line.packageCost ?? ''}" />
+      <div class="row gap-2 wrap mt-2">
+        <input class="input f-count" placeholder="Кол-во упаковок" value="${line.packageCount ?? '1'}" style="flex:1 1 120px;" />
+        <input class="input f-units" placeholder="Ед. в упаковке" value="${line.unitsPerPackage ?? ''}" style="flex:1 1 120px;" />
+        <input class="input f-cost" placeholder="Цена упаковки, ₽" value="${line.packageCost ?? ''}" style="flex:1 1 120px;" />
       </div>
     </div>`;
 }
